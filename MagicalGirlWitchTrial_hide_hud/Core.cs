@@ -13,7 +13,6 @@ namespace MagicalGirlWitchTrial_hide_hud
     public class Core : MelonMod
     {
         private GameObject naninovelUI;
-        private bool hidden;
         private bool inited;
         // Toast 消息类
         private class ToastMessage
@@ -53,13 +52,12 @@ namespace MagicalGirlWitchTrial_hide_hud
             if (inited != Il2CppNaninovel.Engine.Initialized)
             {
                 inited = Il2CppNaninovel.Engine.Initialized;
-                ShowToast("HANANA的【魔法少女的魔女审判】隐藏HUD模组（已经注入成功）");
-                ShowToast("在游戏内按下[F6]切换隐藏状态");
+                ShowToast("HANANA的【魔法少女的魔女审判】模组（已经注入成功）");
+                ShowToast("在游戏内按下[F6]切换隐藏状态,[F7]标题页面背景图切换");
             }
             if (Keyboard.current != null && Keyboard.current.f6Key.wasPressedThisFrame)
             {
-                DumpAllNaninovelUIs();
-                if ((!IsAutoToggleVisible()|| IsTitleLogoVisible()) && !hidden)
+                if ((!IsAutoToggleVisible()|| IsTitleLogoVisible()) && Engine.GetService<ICameraManager>().RenderUI)
                 {
                     ShowToast("不在游戏内，无法切换HUD,强制切换会故障");
                     return;
@@ -78,11 +76,20 @@ namespace MagicalGirlWitchTrial_hide_hud
 
                 if (naninovelUI != null)
                 {
-                    hidden = !hidden;
-                    naninovelUI.SetActive(!hidden);
-                    LoggerInstance.Msg("HUD 切换: " + hidden);
-                    ShowToast("HUD 切换: " + hidden);
+                    Engine.GetService<ICameraManager>().RenderUI = !Engine.GetService<ICameraManager>().RenderUI;
+                    //naninovelUI.SetActive(!Engine.GetService<ICameraManager>().RenderUI);
+                    LoggerInstance.Msg("HUD 切换: " + Engine.GetService<ICameraManager>().RenderUI);
+                    ShowToast("HUD 切换: " + Engine.GetService<ICameraManager>().RenderUI);
                 }
+            }
+            if (Keyboard.current != null && Keyboard.current.f7Key.wasPressedThisFrame)
+            {
+                var vars = Engine.GetService<ICustomVariableManager>();
+                var value = vars.GetVariableValue("g_gameProgress").Number;
+                LoggerInstance.Msg("背景切换 g_gameProgress: " + value);
+                vars.SetVariableValue("g_gameProgress", new CustomVariableValue(value<6?12:5));
+                ShowToast("切换背景 "+ (value < 6 ? "【二阶堂希罗】" : "【樱羽艾玛】"));
+                Engine.GetService<IScriptPlayer>().Play("System/System_Title");
             }
         }
         private void DumpAllNaninovelUIs()
