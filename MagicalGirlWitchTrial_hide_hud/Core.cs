@@ -89,6 +89,7 @@ namespace MagicalGirlWitchTrial_hide_hud
                 LoggerInstance.Msg("背景切换 g_gameProgress: " + value);
                 vars.SetVariableValue("g_gameProgress", new CustomVariableValue(value<6?12:5));
                 ShowToast("切换背景 "+ (value < 6 ? "【二阶堂希罗】" : "【樱羽艾玛】"));
+                Engine.GetService<IScriptPlayer>().Stop();
                 Engine.GetService<IScriptPlayer>().Play("System/System_Title");
             }
         }
